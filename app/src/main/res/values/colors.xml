@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1976D2</color>
+    <color name="white">#FFFFFF</color>
+    <color name="alarm_red">#FF1744</color>
+    <color name="alarm_bg">#1A1A1A</color>
+    <color name="green">#4CAF50</color>
+</resources>
