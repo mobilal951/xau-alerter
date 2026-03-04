@@ -200,6 +200,8 @@ class NtfyService : Service() {
     }
 
     private fun broadcastStatus(status: String) {
+        getSharedPreferences("ntfy_status", MODE_PRIVATE)
+            .edit().putString("status", status).apply()
         sendBroadcast(Intent(ACTION_STATUS).apply {
             setPackage(packageName)
             putExtra(EXTRA_STATUS, status)

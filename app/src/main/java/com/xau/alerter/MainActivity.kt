@@ -72,9 +72,9 @@ class MainActivity : AppCompatActivity() {
         switchNtfy.isChecked = PrefsManager.isNtfyEnabled(this)
         etNtfyServer.setText(PrefsManager.getNtfyServer(this))
         etNtfyTopic.setText(PrefsManager.getNtfyTopic(this))
-        if (!switchNtfy.isChecked) {
-            updateNtfyStatusText(NtfyService.STATUS_DISCONNECTED)
-        }
+        val savedStatus = getSharedPreferences("ntfy_status", MODE_PRIVATE)
+            .getString("status", NtfyService.STATUS_DISCONNECTED)!!
+        updateNtfyStatusText(if (switchNtfy.isChecked) savedStatus else NtfyService.STATUS_DISCONNECTED)
 
         // Monitoring toggle
         switchMonitoring.setOnCheckedChangeListener { _, isChecked ->
