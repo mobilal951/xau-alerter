@@ -106,7 +106,7 @@ class NtfyService : Service() {
                 backoff = RECONNECT_BASE_MS // reset on successful connect
 
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
-                var line: String?
+                var line: String? = null
 
                 while (running && reader.readLine().also { line = it } != null) {
                     val l = line ?: continue
