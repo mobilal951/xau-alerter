@@ -1,7 +1,10 @@
 package com.xau.alerter
 
+import android.content.BroadcastReceiver
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
@@ -23,6 +26,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvAlarmSound: TextView
     private lateinit var tvNotifStatus: TextView
 
+    private lateinit var switchNtfy: SwitchMaterial
+    private lateinit var tvNtfyStatus: TextView
+    private lateinit var etNtfyServer: EditText
+    private lateinit var etNtfyTopic: EditText
+
+    private val ntfyStatusReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val status = intent.getStringExtra(NtfyService.EXTRA_STATUS) ?: return
+            updateNtfyStatusText(status)
+        }
+    }
+
     private val soundPicker = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -42,15 +57,35 @@ class MainActivity : AppCompatActivity() {
         tvAlarmSound = findViewById(R.id.tvAlarmSound)
         tvNotifStatus = findViewById(R.id.tvNotifStatus)
 
+        switchNtfy = findViewById(R.id.switchNtfy)
+        tvNtfyStatus = findViewById(R.id.tvNtfyStatus)
+        etNtfyServer = findViewById(R.id.etNtfyServer)
+        etNtfyTopic = findViewById(R.id.etNtfyTopic)
+
         // Load saved values
         switchMonitoring.isChecked = PrefsManager.isEnabled(this)
         etChannels.setText(PrefsManager.getChannelsRaw(this))
         etKeywords.setText(PrefsManager.getKeywordsRaw(this))
         updateAlarmSoundLabel()
 
+        // Load ntfy settings
+        switchNtfy.isChecked = PrefsManager.isNtfyEnabled(this)
+        etNtfyServer.setText(PrefsManager.getNtfyServer(this))
+        etNtfyTopic.setText(PrefsManager.getNtfyTopic(this))
+        if (!switchNtfy.isChecked) {
+            updateNtfyStatusText(NtfyService.STATUS_DISCONNECTED)
+        }
+
         // Monitoring toggle
         switchMonitoring.setOnCheckedChangeListener { _, isChecked ->
             PrefsManager.setEnabled(this, isChecked)
+            syncNtfyService()
+        }
+
+        // ntfy toggle
+        switchNtfy.setOnCheckedChangeListener { _, isChecked ->
+            PrefsManager.setNtfyEnabled(this, isChecked)
+            syncNtfyService()
         }
 
         // Select alarm sound
@@ -103,11 +138,23 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateNotifStatus()
+
+        val filter = IntentFilter(NtfyService.ACTION_STATUS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(ntfyStatusReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(ntfyStatusReceiver, filter)
+        }
+
+        syncNtfyService()
     }
 
     override fun onPause() {
         super.onPause()
         saveSettings()
+        try {
+            unregisterReceiver(ntfyStatusReceiver)
+        } catch (_: Exception) {}
     }
 
     private fun saveSettings() {
@@ -117,6 +164,41 @@ class MainActivity : AppCompatActivity() {
             .filter { it.isNotEmpty() }
         PrefsManager.setChannels(this, channels)
         PrefsManager.setKeywords(this, etKeywords.text.toString())
+        PrefsManager.setNtfyServer(this, etNtfyServer.text.toString().trim())
+        PrefsManager.setNtfyTopic(this, etNtfyTopic.text.toString().trim())
+    }
+
+    private fun syncNtfyService() {
+        val shouldRun = PrefsManager.isEnabled(this) && PrefsManager.isNtfyEnabled(this)
+        if (shouldRun) {
+            saveSettings() // persist server/topic before starting
+            val intent = Intent(this, NtfyService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+        } else {
+            stopService(Intent(this, NtfyService::class.java))
+            updateNtfyStatusText(NtfyService.STATUS_DISCONNECTED)
+        }
+    }
+
+    private fun updateNtfyStatusText(status: String) {
+        when (status) {
+            NtfyService.STATUS_CONNECTED -> {
+                tvNtfyStatus.text = "ntfy: Connected"
+                tvNtfyStatus.setTextColor(getColor(R.color.green))
+            }
+            NtfyService.STATUS_CONNECTING -> {
+                tvNtfyStatus.text = "ntfy: Connecting..."
+                tvNtfyStatus.setTextColor(getColor(R.color.blue))
+            }
+            else -> {
+                tvNtfyStatus.text = "ntfy: Disabled"
+                tvNtfyStatus.setTextColor(getColor(R.color.alarm_red))
+            }
+        }
     }
 
     private fun updateAlarmSoundLabel() {

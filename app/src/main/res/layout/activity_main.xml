@@ -123,6 +123,74 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="ntfy Push Alerts"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvNtfyStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ntfy: Disabled"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchNtfy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enable ntfy"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ntfy Server URL"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <EditText
+            android:id="@+id/etNtfyServer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="https://inspiredanalyst.duckdns.org"
+            android:inputType="textUri"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:background="@drawable/edit_bg"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ntfy Topic"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <EditText
+            android:id="@+id/etNtfyTopic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="IAAlert"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:background="@drawable/edit_bg"
+            android:layout_marginBottom="24dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EEEEEE"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Permissions"
             android:textSize="16sp"
             android:textStyle="bold"

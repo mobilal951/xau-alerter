@@ -11,8 +11,13 @@ object PrefsManager {
     private const val KEY_CHANNELS = "channels"
     private const val KEY_KEYWORDS = "keywords"
     private const val KEY_ALARM_URI = "alarm_uri"
+    private const val KEY_NTFY_ENABLED = "ntfy_enabled"
+    private const val KEY_NTFY_SERVER = "ntfy_server"
+    private const val KEY_NTFY_TOPIC = "ntfy_topic"
 
     private const val DEFAULT_CHANNELS = "xau,assassin-xau,umrah-challenge"
+    private const val DEFAULT_NTFY_SERVER = "https://inspiredanalyst.duckdns.org"
+    private const val DEFAULT_NTFY_TOPIC = "IAAlert"
 
     private fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -61,5 +66,26 @@ object PrefsManager {
 
     fun setAlarmUri(context: Context, uri: Uri?) {
         prefs(context).edit().putString(KEY_ALARM_URI, uri?.toString()).apply()
+    }
+
+    fun isNtfyEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_NTFY_ENABLED, false)
+
+    fun setNtfyEnabled(context: Context, value: Boolean) {
+        prefs(context).edit().putBoolean(KEY_NTFY_ENABLED, value).apply()
+    }
+
+    fun getNtfyServer(context: Context): String =
+        prefs(context).getString(KEY_NTFY_SERVER, DEFAULT_NTFY_SERVER) ?: DEFAULT_NTFY_SERVER
+
+    fun setNtfyServer(context: Context, server: String) {
+        prefs(context).edit().putString(KEY_NTFY_SERVER, server).apply()
+    }
+
+    fun getNtfyTopic(context: Context): String =
+        prefs(context).getString(KEY_NTFY_TOPIC, DEFAULT_NTFY_TOPIC) ?: DEFAULT_NTFY_TOPIC
+
+    fun setNtfyTopic(context: Context, topic: String) {
+        prefs(context).edit().putString(KEY_NTFY_TOPIC, topic).apply()
     }
 }
