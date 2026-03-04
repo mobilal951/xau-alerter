@@ -145,8 +145,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             registerReceiver(ntfyStatusReceiver, filter)
         }
-
-        syncNtfyService()
     }
 
     override fun onPause() {
